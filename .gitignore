@@ -9,3 +9,4 @@
 docker-compose.override.yml
 
 __pycache__/
+result.txt

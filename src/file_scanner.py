@@ -1,4 +1,5 @@
 import abc
+from reporting import ScanResult
 
 
 class FileScanner(abc.ABC):
@@ -7,5 +8,5 @@ class FileScanner(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def check(self, filename: str, content: str) -> bool:
+    def check(self, reposlug: str, filename: str, content: str) -> ScanResult:
         pass
