@@ -1,16 +1,22 @@
-from environs import Env
+import signal
+import sys
+from arguments import Arguments
 from crawler import GithubCrawler
 
 
-def main():
-    env = Env()
-    env.read_env()
+def signal_handler(sig, frame):
+    print("You pressed Ctrl-C!")
+    sys.exit(0)
 
-    GITHUB_TOKEN = env.str('GITHUB_PERSONAL_TOKEN')
-    ORGANIZATION = env.str('GITHUB_ORGANIZATION', None)
-    g = GithubCrawler(GITHUB_TOKEN, ORGANIZATION)
+
+def main():
+    args = Arguments()
+    if not args.load():
+        exit(0)
+    g = GithubCrawler(args.github_token, args.organization, verbose=args.verbose)
     g.scan()
 
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
     main()
