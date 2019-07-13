@@ -14,7 +14,7 @@ def main():
     try:
         g.scan()
     except KeyboardInterrupt:
-        print("\n\n***********************\n[W] User aborted with CTRL-C.\n***********************\n")
+        print("\n\n*****************************\n[W] User aborted with CTRL-C.\n*****************************\n")
         pass
     reporting.print()
 

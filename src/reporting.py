@@ -40,7 +40,7 @@ class Reporting():
         print("Authorized as:", username)
 
     def working_on(self, current: int, total: int, slug: str) -> None:
-        msg = "[{current:0=3d}/{total:0=3d}] [W:{warn:0=2d}|E:{err:0=2d}] {slug}".format(
+        msg = "[{current:0=3d}/{total:0=3d}] [W:{warn:0=3d}|E:{err:0=3d}] {slug}".format(
             current=current,
             total=total,
             warn=self.warnings,

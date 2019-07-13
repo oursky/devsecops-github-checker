@@ -39,7 +39,7 @@ class GithubCrawler():
             return
         repos = sorted(org.get_repos(), key=lambda x: x.name)
         for index, repo in enumerate(repos):
-            self._reporting.working_on(index, len(repos), "{}/{}".format(org.login, repo.name))
+            self._reporting.working_on(index + 1, len(repos), "{}/{}".format(org.login, repo.name))
             self._scan_repository(user, org, repo)
 
     def _scan_repository(self, user: NamedUser, org: Organization, repo: Repository) -> None:
