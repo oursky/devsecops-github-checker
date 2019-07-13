@@ -9,6 +9,7 @@ from github import (
 )
 from file_scanner_gitignore import GitIgnoreFileScanner
 from file_scanner_dockerignore import DockerIgnoreFileScanner
+from file_scanner_gcloudignore import GCloudIgnoreFileScanner
 
 
 class GithubCrawler:
@@ -19,6 +20,7 @@ class GithubCrawler:
         self._scanners = [
             GitIgnoreFileScanner(),
             DockerIgnoreFileScanner(),
+            GCloudIgnoreFileScanner(),
         ]
 
     def scan(self) -> None:
