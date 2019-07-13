@@ -1,4 +1,5 @@
 from file_scanner import FileScanner
+from reporting import ScanResult, ScanResultStatus
 
 
 class GCloudIgnoreFileScanner(FileScanner):
@@ -21,11 +22,13 @@ class GCloudIgnoreFileScanner(FileScanner):
     def want(self, filename: str) -> bool:
         return filename.endswith(".gcloudignore")
 
-    def check(self, filename: str, content: str) -> bool:
-        result = True
+    def check(self, reposlug: str, filename: str, content: str) -> ScanResult:
+        result = ScanResult(status=ScanResultStatus.OK, reposlug=reposlug, filename=filename)
         entries = [x.strip() for x in content.splitlines()]
         for r in GCloudIgnoreFileScanner.REQUIRED_ENTRIES:
             if r not in entries:
-                print("     [E] Missing {}".format(r))
-                result = False
+                result.problem.append("{} is not ignored".format(r))
+                result.status = ScanResultStatus.ERROR
+        if result.status == ScanResultStatus.ERROR:
+            result.remedy.append("Add the corresponding ignore entry.")
         return result
