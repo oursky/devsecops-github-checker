@@ -1,1 +1,2 @@
-PyGithub===1.43.7
+environs==5.0.0
+PyGithub==1.43.7
