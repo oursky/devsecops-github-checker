@@ -8,6 +8,7 @@ from github import (
     ContentFile,
 )
 from file_scanner_gitignore import GitIgnoreFileScanner
+from file_scanner_dockerignore import DockerIgnoreFileScanner
 
 
 class GithubCrawler:
@@ -16,7 +17,8 @@ class GithubCrawler:
         self._github = Github(access_token)
         self._organization = organization
         self._scanners = [
-            GitIgnoreFileScanner()
+            GitIgnoreFileScanner(),
+            DockerIgnoreFileScanner(),
         ]
 
     def scan(self) -> None:
