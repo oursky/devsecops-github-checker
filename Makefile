@@ -1,7 +1,16 @@
-.PHONY: docker-build docker-run
+.PHONY: run lint docker-build docker-run
+
+dep:
+	@pip3 install -r requirements.txt -r requirements-dev.txt
+
+run:
+	@python3 src/main.py
+
+lint:
+	@pylama src/
 
 docker-build:
 	@docker build -t devsecops-ignore .
 
 docker-run:
-	@bash -c 'source .env && docker run --rm -it -e GITHUB_PERSONAL_TOKEN=$${GITHUB_PERSONAL_TOKEN} devsecops-ignore'
+	@docker run --rm -it --env-file .env devsecops-ignore

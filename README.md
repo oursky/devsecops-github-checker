@@ -12,8 +12,11 @@ if there is ignore files, that file should contains basic ignore entries.
 2. Generate new token.
 3. Tick the `repo` section.
 
+#### Configure
+Copy .env.example to .env and edit it.
+
 #### Run the check
 ```
 docker build -t devsecops-ignore https://github.com/oursky/devsecops-ignore.git
-docker run -it --rm -e GITHUB_PERSONAL_TOKEN=xxxxxx devsecops-ignore
+docker run -it --rm --env-file .env devsecops-ignore
 ```
