@@ -40,7 +40,7 @@ class Reporting():
         print("Authorized as:", username)
 
     def working_on(self, current: int, total: int, slug: str) -> None:
-        msg = "[{current:0=3d}/{total:0=3d}] [W:{warn:0=3d}|E:{err:0=3d}] {slug}".format(
+        msg = "[{current:03d}/{total:03d}] [W:{warn:03d}|E:{err:03d}] {slug}".format(
             current=current,
             total=total,
             warn=self.warnings,
@@ -54,7 +54,7 @@ class Reporting():
 
     def print(self):
         with open('result.txt', 'a') as logfile:
-            msg = "\nSummary: {total} checked, {warn} warnings, {err} errors".format(
+            msg = "\nSummary: {total} ignore files checked, {warn} warnings, {err} errors".format(
                 total=self.total,
                 warn=self.warnings,
                 err=self.errors)
