@@ -49,15 +49,15 @@ class GithubCrawler():
         except GithubException:
             # Skip if no master branch
             return
-        for file in tree:
-            self._scan_file(user, org, repo, file.path)
+        for element in tree:
+            self._scan_file(user, org, repo, element.path, branch.commit.sha)
 
-    def _scan_file(self, user: NamedUser, org: Organization, repo: Repository, filename: str) -> None:
+    def _scan_file(self, user: NamedUser, org: Organization, repo: Repository, filename: str, sha: str) -> None:
         file: Optional(ContentFile) = None
         for scanner in self._scanners:
             if scanner.want(filename):
                 if not file:
-                    file = repo.get_contents(filename)
+                    file = repo.get_contents(filename, ref=sha)
                 reposlug = "{}/{}".format(org.login, repo.name)
                 result = scanner.check(reposlug, file.path, file.decoded_content)
                 self._reporting.report(result)
