@@ -15,9 +15,9 @@ from file_scanner_gcloudignore import GCloudIgnoreFileScanner
 
 
 class GithubCrawler():
-    def __init__(self, access_token: str, organization: Optional[str], reporting: Reporting):
+    def __init__(self, github: Github, organization: Optional[str], reporting: Reporting):
         self._reporting = reporting
-        self._github = Github(access_token)
+        self._github = github
         self._organization = organization
         self._scanners = [
             GitIgnoreFileScanner(),

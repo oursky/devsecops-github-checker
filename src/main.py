@@ -1,3 +1,4 @@
+from github import Github
 from arguments import Arguments
 from crawler import GithubCrawler
 from reporting import Reporting
@@ -9,8 +10,9 @@ def main():
     args = Arguments()
     if not args.load():
         exit(0)
-    reporting = Reporting(verbose=args.verbose)
-    g = GithubCrawler(args.github_token, args.organization, reporting=reporting)
+    github = Github(args.github_token)
+    reporting = Reporting(github, verbose=args.verbose)
+    g = GithubCrawler(github, args.organization, reporting=reporting)
     try:
         g.scan()
     except KeyboardInterrupt:
