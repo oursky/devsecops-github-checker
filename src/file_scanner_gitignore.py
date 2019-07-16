@@ -16,7 +16,7 @@ class GitIgnoreFileScanner(FileScanner):
     ]
 
     def want(self, filename: str) -> bool:
-        return filename.endswith(".gitignore")
+        return filename == ".gitignore"
 
     def check(self, reposlug: str, filename: str, content: str) -> ScanResult:
         result = ScanResult(status=ScanResultStatus.OK, reposlug=reposlug, filename=filename)
