@@ -41,7 +41,6 @@ class GithubCrawler():
         for index, repo in enumerate(repos):
             if repo.archived or repo.fork:
                 continue
-
             self._reporting.working_on(index + 1, len(repos), "{}/{}".format(org.login, repo.name))
             self._scan_repository(user, org, repo)
 
@@ -57,10 +56,12 @@ class GithubCrawler():
 
     def _scan_file(self, user: NamedUser, org: Organization, repo: Repository, filename: str, sha: str) -> None:
         file: Optional(ContentFile) = None
+        content: str = None
         for scanner in self._scanners:
             if scanner.want(filename):
                 if not file:
                     file = repo.get_contents(filename, ref=sha)
+                    content = file.decoded_content.decode("utf-8")
                 reposlug = "{}/{}".format(org.login, repo.name)
-                result = scanner.check(reposlug, file.path, file.decoded_content)
+                result = scanner.check(reposlug, file.path, content)
                 self._reporting.report(result)
