@@ -15,9 +15,9 @@ from file_scanner_gcloudignore import GCloudIgnoreFileScanner
 
 
 class GithubCrawler():
-    def __init__(self, access_token: str, organization: Optional[str], reporting: Reporting):
+    def __init__(self, github: Github, organization: Optional[str], reporting: Reporting):
         self._reporting = reporting
-        self._github = Github(access_token)
+        self._github = github
         self._organization = organization
         self._scanners = [
             GitIgnoreFileScanner(),
@@ -39,6 +39,9 @@ class GithubCrawler():
             return
         repos = sorted(org.get_repos(), key=lambda x: x.name)
         for index, repo in enumerate(repos):
+            if repo.archived or repo.fork:
+                continue
+
             self._reporting.working_on(index + 1, len(repos), "{}/{}".format(org.login, repo.name))
             self._scan_repository(user, org, repo)
 
