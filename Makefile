@@ -1,7 +1,7 @@
 .PHONY: run lint docker-build docker-run
 
 dep:
-	@pip3 install --user -r requirements.txt -r requirements-dev.txt
+	@pip3 install -r requirements.txt -r requirements-dev.txt
 
 run:
 	@python3 src/main.py

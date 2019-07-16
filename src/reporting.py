@@ -1,7 +1,11 @@
-from typing import List
+from typing import List, TextIO
 from enum import Enum
 from github import (
     Github,
+    Repository,
+    Label,
+    Issue,
+    UnknownObjectException,
 )
 
 
@@ -24,8 +28,9 @@ class ScanResult():
 
 
 class Reporting():
-    def __init__(self, github: Github, verbose: bool = False):
+    def __init__(self, github: Github, verbose: bool = False, create_git_issue: bool = False):
         self._verbose = verbose
+        self._create_git_issue = create_git_issue
         self._github = github
         self._results = {}
         self._warnings = 0
@@ -62,23 +67,80 @@ class Reporting():
             print(msg)
             print(msg, file=logfile)
             for reposlug in self._results:
-                issue = self._build_issue(self._results[reposlug])
-                if not issue:
+                if not self._have_problem(self._results[reposlug]):
                     continue
-                if self._verbose:
-                    print(issue)
-                print(issue, file=logfile)
+                self._emit_log(reposlug, self._results[reposlug], logfile)
+                try:
+                    self._emit_github_issue(reposlug, self._results[reposlug])
+                except Exception as e:
+                    print("[E] {}".format(str(e)))
 
-    def _build_issue(self, results: List[ScanResult]) -> str:
-        issue = ""
+    def _have_problem(self, results: List[ScanResult]) -> bool:
+        for result in results:
+            if result.status != ScanResultStatus.OK:
+                return True
+        return False
+
+    def _emit_log(self, reposlug: str, results: List[ScanResult], logfile: TextIO) -> None:
+        message = ""
         for result in results:
             if result.status == ScanResultStatus.OK:
                 continue
-            msg = "[{status}] {slug}: {file}\n    {problem}\n\n    Remedy: {remedy}\n".format(
+            item = "[{status}] {slug}: {file}\n    {problem}\n\n    Remedy: {remedy}\n".format(
                 status=result.status.value,
                 slug=result.reposlug,
                 file=result.filename,
                 problem="\n    ".join(result.problem),
                 remedy="\n            ".join(result.remedy))
-            issue = issue + msg
-        return issue
+            message = message + item
+        if self._verbose:
+            print(message)
+        print(message, file=logfile)
+
+    def _emit_github_issue(self, reposlug: str, results: List[ScanResult]) -> None:
+        if not self._create_git_issue:
+            return
+        title = "Missing entries in ignore file(s)"
+        message = ""
+        for result in results:
+            if result.status == ScanResultStatus.OK:
+                continue
+            item = "Please add the following to {file}:\n- {problem}\n\n".format(
+                file=result.filename,
+                problem="\n- ".join(result.problem))
+            message = message + item
+        # get repo
+        try:
+            repo = self._github.get_repo(reposlug)
+        except UnknownObjectException:
+            print("[E] Repository not found: ", reposlug)
+            return
+        label = self._create_label_if_needed(reposlug, repo, "devsecops", "Issues related to security", "3c4e90")
+        self._create_or_update_issue(reposlug, repo, label, title, message)
+
+    def _create_label_if_needed(self, reposlug: str, repo: Repository, name: str, desc: str, color: str) -> Label:
+        try:
+            label = repo.get_label("devsecops")
+        except UnknownObjectException:
+            if self._verbose:
+                print("[I] Creating label {}:{}".format(reposlug, name))
+            label = repo.create_label(name, color, desc)
+        return label
+
+    def _find_issue(self, repo: Repository, label: Label, title: str) -> Issue:
+        issues = repo.get_issues(labels=[label])
+        for issue in issues:
+            if issue.title == title and issue.state == "open":
+                return issue
+        return None
+
+    def _create_or_update_issue(self, reposlug: str, repo: Repository, label: Label, title: str, body: str) -> None:
+        issue = self._find_issue(repo, label, title)
+        if issue:
+            issue.edit(body=body)
+            if self._verbose:
+                print("[I] Updated issue https://github.com/{}/issues/{}".format(reposlug, issue.number))
+        else:
+            issue = repo.create_issue(title, body, labels=[label])
+            if self._verbose:
+                print("[I] Created issue https://github.com/{}/issues/{}".format(reposlug, issue.number))

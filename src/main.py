@@ -11,7 +11,7 @@ def main():
     if not args.load():
         exit(0)
     github = Github(args.github_token)
-    reporting = Reporting(github, verbose=args.verbose)
+    reporting = Reporting(github, verbose=args.verbose, create_git_issue=args.create_git_issue)
     g = GithubCrawler(github, args.organization, reporting=reporting)
     try:
         g.scan()
