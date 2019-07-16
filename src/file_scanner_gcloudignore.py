@@ -20,7 +20,7 @@ class GCloudIgnoreFileScanner(FileScanner):
     ]
 
     def want(self, filename: str) -> bool:
-        return filename.endswith(".gcloudignore")
+        return filename == ".gcloudignore" or filename.endswith("/.gcloudignore")
 
     def check(self, reposlug: str, filename: str, content: str) -> ScanResult:
         result = ScanResult(status=ScanResultStatus.OK, reposlug=reposlug, filename=filename)

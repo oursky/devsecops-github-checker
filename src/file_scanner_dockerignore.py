@@ -20,7 +20,7 @@ class DockerIgnoreFileScanner(FileScanner):
     ]
 
     def want(self, filename: str) -> bool:
-        return filename.endswith(".dockerignore")
+        return filename == ".dockerignore" or filename.endswith("/.dockerignore")
 
     def check(self, reposlug: str, filename: str, content: str) -> ScanResult:
         result = ScanResult(status=ScanResultStatus.OK, reposlug=reposlug, filename=filename)
