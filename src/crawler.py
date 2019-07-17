@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from github import (
     Github,
     GithubException,
@@ -39,29 +39,37 @@ class GithubCrawler():
             return
         repos = sorted(org.get_repos(), key=lambda x: x.name)
         for index, repo in enumerate(repos):
+            self._reporting.working_on(index + 1, len(repos), "{}/{}".format(org.login, repo.name))
             if repo.archived or repo.fork:
                 continue
-            self._reporting.working_on(index + 1, len(repos), "{}/{}".format(org.login, repo.name))
             self._scan_repository(user, org, repo)
 
     def _scan_repository(self, user: NamedUser, org: Organization, repo: Repository) -> None:
         try:
             branch = repo.get_branch(branch="master")
             tree = repo.get_git_tree(branch.commit.sha, recursive=True).tree
-        except GithubException:
+        except GithubException as e:
+            print("[W] {}/{} - {}".format(org.login, repo.name, str(e)))
             # Skip if no master branch
             return
+        filelist = [x.path for x in tree]
         for element in tree:
-            self._scan_file(user, org, repo, element.path, branch.commit.sha)
+            self._scan_file(user, org, repo, branch.commit.sha, element.path, filelist)
 
-    def _scan_file(self, user: NamedUser, org: Organization, repo: Repository, filename: str, sha: str) -> None:
+    def _scan_file(self,
+                   user: NamedUser,
+                   org: Organization,
+                   repo: Repository,
+                   commitsha: str,
+                   filename: str,
+                   filelist: List[str]) -> None:
         file: Optional(ContentFile) = None
         content: str = None
         for scanner in self._scanners:
             if scanner.want(filename):
                 if not file:
-                    file = repo.get_contents(filename, ref=sha)
+                    file = repo.get_contents(filename, ref=commitsha)
                     content = file.decoded_content.decode("utf-8")
                 reposlug = "{}/{}".format(org.login, repo.name)
-                result = scanner.check(reposlug, file.path, content)
+                result = scanner.check(reposlug, file.path, content, filelist)
                 self._reporting.report(result)

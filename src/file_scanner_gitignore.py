@@ -1,3 +1,4 @@
+from typing import List
 from file_scanner import FileScanner
 from reporting import ScanResult, ScanResultStatus
 
@@ -18,7 +19,7 @@ class GitIgnoreFileScanner(FileScanner):
     def want(self, filename: str) -> bool:
         return filename == ".gitignore"
 
-    def check(self, reposlug: str, filename: str, content: str) -> ScanResult:
+    def check(self, reposlug: str, filename: str, content: str, filelist: List[str]) -> ScanResult:
         result = ScanResult(status=ScanResultStatus.OK, reposlug=reposlug, filename=filename)
         entries = [x.strip() for x in content.splitlines()]
         for r in GitIgnoreFileScanner.REQUIRED_ENTRIES:
