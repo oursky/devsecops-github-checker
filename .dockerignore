@@ -8,3 +8,7 @@
 *.key
 .env
 docker-compose.override.yml
+
+.blackbox/
+*.gpg
+
