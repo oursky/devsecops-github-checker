@@ -18,12 +18,12 @@ class GCloudIgnoreFileScanner(FileScanner):
         "docker-compose.override.yml",
     ]
     CONDITIONAL_ENTRIES = [
-        ["*.gpg", ".*\\.gpg$"],
-        [".blackbox/", "\\.blackbox/*"],
-        [".keyring/", "\\.keyring/*"],
-        ["keyring/", "keyring/*"],
-        [".keyrings/", "\\.keyrings/*"],
-        ["keyrings/", "keyrings/*"],
+        ["*.gpg", r'.*\.gpg$'],
+        [".blackbox/", r'\.blackbox/.*'],
+        [".keyring/", r'\.keyring/.*'],
+        ["keyring/", r'keyring/.*'],
+        [".keyrings/", r'\.keyrings/.*'],
+        ["keyrings/", r'keyrings/.*'],
     ]
 
     def want(self, filename: str) -> bool:
