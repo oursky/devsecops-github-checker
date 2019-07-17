@@ -24,6 +24,7 @@ class ScanResult():
         self.reposlug = reposlug
         self.filename = filename
         self.problem = []
+        self.missings = []
         self.remedy = []
 
 
@@ -73,7 +74,7 @@ class Reporting():
                 try:
                     self._emit_github_issue(reposlug, self._results[reposlug])
                 except Exception as e:
-                    print("[E] {}".format(str(e)))
+                    print("[E] {} - {}".format(reposlug, str(e)))
 
     def _have_problem(self, results: List[ScanResult]) -> bool:
         for result in results:
@@ -105,9 +106,9 @@ class Reporting():
         for result in results:
             if result.status == ScanResultStatus.OK:
                 continue
-            item = "Please add the following to {file}:\n- {problem}\n\n".format(
+            item = "Please add the following to {file}:\n```\n{fixes}\n```\n\n".format(
                 file=result.filename,
-                problem="\n- ".join(result.problem))
+                fixes="\n".join(result.missings))
             message = message + item
         # get repo
         try:

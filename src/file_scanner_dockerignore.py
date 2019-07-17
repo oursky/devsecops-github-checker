@@ -27,6 +27,7 @@ class DockerIgnoreFileScanner(FileScanner):
         entries = [x.strip() for x in content.splitlines()]
         for r in DockerIgnoreFileScanner.REQUIRED_ENTRIES:
             if r not in entries:
+                result.missings.append(r)
                 result.problem.append("{} is not ignored".format(r))
                 result.status = ScanResultStatus.ERROR
         if result.status == ScanResultStatus.ERROR:
