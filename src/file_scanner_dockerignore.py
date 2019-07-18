@@ -42,13 +42,9 @@ class DockerIgnoreFileScanner(FileScanner):
         for r in DockerIgnoreFileScanner.REQUIRED_ENTRIES:
             if r not in entries:
                 result.missings.append(r)
-                result.problem.append("{} is not ignored".format(r))
                 result.status = ScanResultStatus.ERROR
         for r, pattern in DockerIgnoreFileScanner.CONDITIONAL_ENTRIES:
             if r not in entries and self._contain_file(filelist, pattern):
                 result.missings.append(r)
-                result.problem.append("{} is not ignored".format(r))
                 result.status = ScanResultStatus.ERROR
-        if result.status == ScanResultStatus.ERROR:
-            result.remedy.append("Add the corresponding ignore entry.")
         return result

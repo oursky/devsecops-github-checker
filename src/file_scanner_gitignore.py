@@ -25,8 +25,5 @@ class GitIgnoreFileScanner(FileScanner):
         for r in GitIgnoreFileScanner.REQUIRED_ENTRIES:
             if r not in entries:
                 result.missings.append(r)
-                result.problem.append("{} is not ignored".format(r))
                 result.status = ScanResultStatus.ERROR
-        if result.status == ScanResultStatus.ERROR:
-            result.remedy.append("Add the corresponding ignore entry.")
         return result

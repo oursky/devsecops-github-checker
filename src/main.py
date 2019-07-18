@@ -1,7 +1,9 @@
 from github import Github
 from arguments import Arguments
 from crawler import GithubCrawler
+from results import ScanResults
 from reporting import Reporting
+from git_issue_creator import GitIssueCreator
 
 
 def main():
@@ -11,14 +13,16 @@ def main():
     if not args.load():
         exit(0)
     github = Github(args.github_token)
-    reporting = Reporting(github, verbose=args.verbose, create_git_issue=args.create_git_issue)
-    g = GithubCrawler(github, args.organization, reporting=reporting)
+    crawler = GithubCrawler(github, args.organization)
+    results = ScanResults()
     try:
-        g.scan()
+        crawler.scan(results)
     except KeyboardInterrupt:
         print("\n\n*****************************\n[W] User aborted with CTRL-C.\n*****************************\n")
         pass
-    reporting.print()
+    Reporting(verbose=args.verbose).print(results)
+    if args.create_git_issue:
+        GitIssueCreator(github, verbose=args.verbose).create_issues(results)
 
 
 if __name__ == "__main__":

@@ -8,15 +8,14 @@ from github import (
     Repository,
     ContentFile,
 )
-from reporting import Reporting
+from results import ScanResults
 from file_scanner_gitignore import GitIgnoreFileScanner
 from file_scanner_dockerignore import DockerIgnoreFileScanner
 from file_scanner_gcloudignore import GCloudIgnoreFileScanner
 
 
 class GithubCrawler():
-    def __init__(self, github: Github, organization: Optional[str], reporting: Reporting):
-        self._reporting = reporting
+    def __init__(self, github: Github, organization: Optional[str]):
         self._github = github
         self._organization = organization
         self._scanners = [
@@ -25,26 +24,33 @@ class GithubCrawler():
             GCloudIgnoreFileScanner(),
         ]
 
-    def scan(self) -> None:
+    def scan(self, results: ScanResults) -> None:
         try:
             user = self._github.get_user()
-            self._reporting.authorized_as(user.login)
+            print("Authorized as:", user.login)
             for org in sorted(user.get_orgs(), key=lambda x: x.login):
-                self._scan_organization(user, org)
+                self._scan_organization(results, user, org)
         except RateLimitExceededException as e:
             print(e)
 
-    def _scan_organization(self, user: NamedUser, org: Organization) -> None:
+    def _scan_organization(self, results: ScanResults, user: NamedUser, org: Organization) -> None:
         if self._organization and org.login != self._organization:
             return
         repos = sorted(org.get_repos(), key=lambda x: x.name)
         for index, repo in enumerate(repos):
-            self._reporting.working_on(index + 1, len(repos), "{}/{}".format(org.login, repo.name))
+            msg = "[{current:03d}/{total:03d}] [W:{warn:03d}|E:{err:03d}] {slug}".format(
+                current=index + 1,
+                total=len(repos),
+                warn=results.warnings,
+                err=results.errors,
+                slug="{}/{}".format(org.login, repo.name)
+            )
+            print("\r{0: <78}\r".format(msg), end='')
             if repo.archived or repo.fork:
                 continue
-            self._scan_repository(user, org, repo)
+            self._scan_repository(results, user, org, repo)
 
-    def _scan_repository(self, user: NamedUser, org: Organization, repo: Repository) -> None:
+    def _scan_repository(self, results: ScanResults, user: NamedUser, org: Organization, repo: Repository) -> None:
         try:
             branch = repo.get_branch(branch="master")
             tree = repo.get_git_tree(branch.commit.sha, recursive=True).tree
@@ -54,9 +60,10 @@ class GithubCrawler():
             return
         filelist = [x.path for x in tree]
         for element in tree:
-            self._scan_file(user, org, repo, branch.commit.sha, element.path, filelist)
+            self._scan_file(results, user, org, repo, branch.commit.sha, element.path, filelist)
 
     def _scan_file(self,
+                   results: ScanResults,
                    user: NamedUser,
                    org: Organization,
                    repo: Repository,
@@ -72,4 +79,4 @@ class GithubCrawler():
                     content = file.decoded_content.decode("utf-8")
                 reposlug = "{}/{}".format(org.login, repo.name)
                 result = scanner.check(reposlug, file.path, content, filelist)
-                self._reporting.report(result)
+                results.add(result)
