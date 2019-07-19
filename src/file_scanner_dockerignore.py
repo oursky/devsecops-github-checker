@@ -36,19 +36,21 @@ class DockerIgnoreFileScanner(FileScanner):
                 return True
         return False
 
-    def check(self, reposlug: str, filename: str, content: str, filelist: List[str]) -> ScanResult:
-        result = ScanResult(status=ScanResultStatus.OK, reposlug=reposlug, filename=filename)
+    def check(self, reposlug: str, commitsha: str, filesha: str, filename: str,
+              content: str, filelist: List[str]) -> ScanResult:
+        result = ScanResult(status=ScanResultStatus.OK,
+                            reposlug=reposlug,
+                            commitsha=commitsha,
+                            filesha=filesha,
+                            filename=filename,
+                            content=content)
         entries = [x.strip() for x in content.splitlines()]
         for r in DockerIgnoreFileScanner.REQUIRED_ENTRIES:
             if r not in entries:
                 result.missings.append(r)
-                result.problem.append("{} is not ignored".format(r))
                 result.status = ScanResultStatus.ERROR
         for r, pattern in DockerIgnoreFileScanner.CONDITIONAL_ENTRIES:
             if r not in entries and self._contain_file(filelist, pattern):
                 result.missings.append(r)
-                result.problem.append("{} is not ignored".format(r))
                 result.status = ScanResultStatus.ERROR
-        if result.status == ScanResultStatus.ERROR:
-            result.remedy.append("Add the corresponding ignore entry.")
         return result
