@@ -11,10 +11,16 @@ class ScanResult():
     def __init__(self,
                  status: ScanResultStatus,
                  reposlug: str,
-                 filename: str):
+                 commitsha: str,
+                 filesha: str,
+                 filename: str,
+                 content: str):
         self.status = status
         self.reposlug = reposlug
+        self.commitsha = commitsha
+        self.filesha = filesha
         self.filename = filename
+        self.content = content
         self.missings = []
 
 

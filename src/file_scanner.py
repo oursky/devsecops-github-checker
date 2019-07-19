@@ -9,5 +9,6 @@ class FileScanner(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def check(self, reposlug: str, filename: str, content: str, filelist: List[str]) -> ScanResult:
+    def check(self, reposlug: str, commitsha: str, filesha: str, filename: str,
+              content: str, filelist: List[str]) -> ScanResult:
         pass

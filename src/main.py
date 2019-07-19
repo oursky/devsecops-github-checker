@@ -21,8 +21,10 @@ def main():
         print("\n\n*****************************\n[W] User aborted with CTRL-C.\n*****************************\n")
         pass
     Reporting(verbose=args.verbose).print(results)
-    if args.create_git_issue:
-        GitIssueCreator(github, verbose=args.verbose).create_issues(results)
+    GitIssueCreator(github,
+                    verbose=args.verbose,
+                    create_issue=args.create_issue,
+                    create_pr=args.create_pr).create_issues(results)
 
 
 if __name__ == "__main__":

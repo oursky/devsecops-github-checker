@@ -36,8 +36,14 @@ class DockerIgnoreFileScanner(FileScanner):
                 return True
         return False
 
-    def check(self, reposlug: str, filename: str, content: str, filelist: List[str]) -> ScanResult:
-        result = ScanResult(status=ScanResultStatus.OK, reposlug=reposlug, filename=filename)
+    def check(self, reposlug: str, commitsha: str, filesha: str, filename: str,
+              content: str, filelist: List[str]) -> ScanResult:
+        result = ScanResult(status=ScanResultStatus.OK,
+                            reposlug=reposlug,
+                            commitsha=commitsha,
+                            filesha=filesha,
+                            filename=filename,
+                            content=content)
         entries = [x.strip() for x in content.splitlines()]
         for r in DockerIgnoreFileScanner.REQUIRED_ENTRIES:
             if r not in entries:

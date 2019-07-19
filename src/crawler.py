@@ -78,5 +78,5 @@ class GithubCrawler():
                     file = repo.get_contents(filename, ref=commitsha)
                     content = file.decoded_content.decode("utf-8")
                 reposlug = "{}/{}".format(org.login, repo.name)
-                result = scanner.check(reposlug, file.path, content, filelist)
+                result = scanner.check(reposlug, commitsha, file.sha, file.path, content, filelist)
                 results.add(result)
