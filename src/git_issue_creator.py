@@ -113,7 +113,7 @@ class GitIssueCreator():
 
     def _create_pr(self, reposlug: str, repo: Repository, branch: str, onto: str) -> None:
         repo.create_pull(title="Harden ignore files",
-                         body="Autofix created by decsecops",
+                         body="Autofix created by devsecops",
                          base=onto,
                          head=branch)
         print("[I] Created PR {}".format(reposlug))
