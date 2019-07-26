@@ -20,7 +20,15 @@ Copy .env.example to .env and edit it.
 #### Run the check
 ```
 docker build -t devsecops-ignore https://github.com/oursky/devsecops-ignore.git
-docker run -it --rm --env-file .env devsecops-ignore
+docker run -it --rm --env-file .env devsecops-ignore --create-issue --create-pr
+```
+###### Command line arguments
+```
+usage: python main.py [-h] -[v] [--create-issue] [--create-pr]
+  -h              Show this help
+  -v              Verbose
+  --create-issue  Automatic create github issue, disable if omitted
+  --create-pr     Generate autofix pull request, disable if omitted
 ```
 
 <!-- Markdown link & img dfn's -->
