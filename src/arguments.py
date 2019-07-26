@@ -14,7 +14,7 @@ class Arguments():
     def load(self, args):
         env = Env()
         env.read_env()
-        self.github_token = env.str('GITHUB_PERSONAL_TOKEN')
+        self.github_token = env.str('GITHUB_PERSONAL_TOKEN', None)
         self.organization = env.str('GITHUB_ORGANIZATION', None)
         self.verbose = env.bool("VERBOSE", False)
         self.create_issue = env.bool("CREATE_ISSUE", False)
@@ -26,8 +26,7 @@ class Arguments():
                                        ["help",
                                         "verbose",
                                         "create-issue",
-                                        "create-pr",
-                                       ])
+                                        "create-pr"])
             for o, a in opts:
                 if o in ("-v", "--verbose"):
                     self.verbose = True
@@ -37,8 +36,12 @@ class Arguments():
                     self.create_issue = True
                 elif o in ("--create-pr"):
                     self.create_pr = True
-        except getopt.GetoptError as e:
+        except getopt.GetoptError:
             pass
+
+        if not self.github_token:
+            print("GITHUB_PERSONAL_TOKEN not configured, please set it on .env")
+            return False
         return True
 
     def print_help(self):
