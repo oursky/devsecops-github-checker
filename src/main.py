@@ -1,3 +1,4 @@
+import sys
 from github import Github
 from arguments import Arguments
 from crawler import GithubCrawler
@@ -10,8 +11,12 @@ def main():
     print("== DevSecOps: ignore ==\nScan github repositories for misconfigured ignore files.\n")
 
     args = Arguments()
-    if not args.load():
+    if not args.load(sys.argv[1:]):
         exit(0)
+    if args.help:
+        args.print_help()
+        exit(0)
+
     github = Github(args.github_token)
     crawler = GithubCrawler(github, args.organization)
     results = ScanResults()
